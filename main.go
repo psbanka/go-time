@@ -17,6 +17,9 @@ type TodoPageData struct {
 }
 
 func main() {
+	fs := http.FileServer(http.Dir("assets/"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
+
 	tmpl := template.Must(template.ParseFiles("layout.html"))
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
