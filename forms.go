@@ -41,7 +41,16 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
     // do something with details
     _ = details
 
-    // dump shit to db
+    // Things to do to actually persist this to DB
+    // 1. Create the database on the local machine
+    // 2. Create a user for the database
+    // 3. Setup appropriate tables (in our case, just one for now)
+    // 4. Connect to the database in this method
+    // 5. Actually persist data
+    // 6. [OPTIONAL] Add a new route with HTTP BASIC AUTH to get access to the
+    // data.
+    // 7. ...
+    // 8. Profit!
 
     tmpl.Execute(w, struct{ Success bool }{true})
     return
