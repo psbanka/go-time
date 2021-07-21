@@ -10,7 +10,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type ContactDetails struct {
+type EmailDetails struct {
 	Address string
 	Subject string
 	Message string
@@ -18,6 +18,7 @@ type ContactDetails struct {
 
 func main() {
 	http.HandleFunc("/", handleRoot)
+	http.HandleFunc("/emails", handleEmails)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -40,7 +41,7 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodPost {
 
-		details := ContactDetails{
+		details := EmailDetails{
 			Address: r.FormValue("address"),
 			Subject: r.FormValue("subject"),
 			Message: r.FormValue("message"),
@@ -73,4 +74,34 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, response)
 	log.Println(response)
 
+}
+
+func handleEmails(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.ParseFiles("emails.html"))
+	db, err := sql.Open("mysql", "go-squee:my-new-password@(127.0.0.1:3306)/form_persistance?parseTime=true")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+	query := "SELECT * FROM emails;"
+	rows, err := db.Query(query)
+	defer rows.Close()
+
+	details := []EmailDetails{}
+
+	for rows.Next() {
+		email := EmailDetails{}
+		err := rows.Scan(email)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		append(details, email)
+		fmt.Printf(details)
+
+	}
+
+	tmpl.Execute(w, details)
 }
