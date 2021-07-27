@@ -11,10 +11,17 @@ import (
 )
 
 type EmailDetails struct {
+	Id      int
 	Address string
 	Subject string
 	Message string
 }
+
+// Oh, would you like a database? Here's how you can fire it up!
+// create database form_persistance;
+// create user 'go-squee' identified by 'my-new-password';
+// GRANT ALL PRIVILEGES on *.* to 'go-squee';
+// mysql> create table emails (id INT NOT NULL AUTO_INCREMENT, address VARCHAR(512), subject VARCHAR(1024), message TEXT, PRIMARY KEY ( id ));
 
 func main() {
 	http.HandleFunc("/", handleRoot)
@@ -77,6 +84,12 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleEmails(w http.ResponseWriter, r *http.Request) {
+
+	type EmailPageData struct {
+		PageTitle string
+		Details   []EmailDetails
+	}
+
 	tmpl := template.Must(template.ParseFiles("emails.html"))
 	db, err := sql.Open("mysql", "go-squee:my-new-password@(127.0.0.1:3306)/form_persistance?parseTime=true")
 	if err != nil {
@@ -86,22 +99,26 @@ func handleEmails(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 	query := "SELECT * FROM emails;"
 	rows, err := db.Query(query)
-	defer rows.Close()
+	defer rows.Close() // needed?
 
 	details := []EmailDetails{}
 
 	for rows.Next() {
 		email := EmailDetails{}
-		err := rows.Scan(email)
-
+		err := rows.Scan(&email.Id, &email.Address, &email.Subject, &email.Message)
 		if err != nil {
 			log.Fatal(err)
 		}
+		fmt.Printf(email.Address)
 
-		append(details, email)
-		fmt.Printf(details)
-
+		details = append(details, email)
 	}
 
-	tmpl.Execute(w, details)
+	data := EmailPageData{
+		PageTitle: "My emails!",
+		Details:   details,
+	}
+
+	fmt.Printf("here's the %v", details)
+	tmpl.Execute(w, data)
 }
