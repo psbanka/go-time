@@ -1,4 +1,4 @@
-<h1>{{.PageTitle}}</h1>
+<h1>Emails!</h1>
 <table>
   <thead>
     <tr>
@@ -7,7 +7,7 @@
     </tr>
   </thead>
   <tbody>
-    {{range .Details}}
+    {{range .}}
     <tr>
       <td>{{.Address}}</td>
       <td><a href="/email/{{.Id}}">{{.Subject}}</a></td>

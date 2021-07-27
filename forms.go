@@ -84,22 +84,14 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleEmails(w http.ResponseWriter, r *http.Request) {
-
-	type EmailPageData struct {
-		PageTitle string
-		Details   []EmailDetails
-	}
-
 	tmpl := template.Must(template.ParseFiles("emails.html"))
 	db, err := sql.Open("mysql", "go-squee:my-new-password@(127.0.0.1:3306)/form_persistance?parseTime=true")
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	defer db.Close()
 	query := "SELECT * FROM emails;"
 	rows, err := db.Query(query)
-	defer rows.Close() // needed?
 
 	details := []EmailDetails{}
 
@@ -109,16 +101,8 @@ func handleEmails(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf(email.Address)
-
 		details = append(details, email)
 	}
 
-	data := EmailPageData{
-		PageTitle: "My emails!",
-		Details:   details,
-	}
-
-	fmt.Printf("here's the %v", details)
-	tmpl.Execute(w, data)
+	tmpl.Execute(w, details)
 }
