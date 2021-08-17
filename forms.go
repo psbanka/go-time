@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -24,10 +26,13 @@ type EmailDetails struct {
 // mysql> create table emails (id INT NOT NULL AUTO_INCREMENT, address VARCHAR(512), subject VARCHAR(1024), message TEXT, PRIMARY KEY ( id ));
 
 func main() {
-	http.HandleFunc("/", handleRoot)
-	http.HandleFunc("/emails", handleEmails)
+	r := mux.NewRouter()
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	r.HandleFunc("/", handleRoot)
+	r.HandleFunc("/emails", handleEmails)
+	r.HandleFunc("/emails/{emailId}", handleEmail)
+
+	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
 func handleRoot(w http.ResponseWriter, r *http.Request) {
@@ -105,4 +110,27 @@ func handleEmails(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tmpl.Execute(w, details)
+}
+
+func handleEmail(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	emailId := vars["emailId"]
+
+	db, err := sql.Open("mysql", "go-squee:my-new-password@(127.0.0.1:3306)/form_persistance?parseTime=true")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	// query := "SELECT id, username, password, created_at FROM users WHERE id = ?"
+	// if err := db.QueryRow(query, 2).Scan(&id, &username, &password, &createdAt); err != nil {
+	email := EmailDetails{}
+	query := "SELECT id, address, subject, message FROM emails WHERE id = ?"
+	if err := db.QueryRow(query, emailId).Scan(&email.Id, &email.Address, &email.Subject, &email.Message); err != nil {
+		tmpl := template.Must(template.ParseFiles("404.html"))
+		tmpl.Execute(w, nil)
+	} else {
+		tmpl := template.Must(template.ParseFiles("email.html"))
+		tmpl.Execute(w, email)
+	}
 }
