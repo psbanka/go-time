@@ -25,7 +25,11 @@ type EmailDetails struct {
 // GRANT ALL PRIVILEGES on *.* to 'go-squee';
 // mysql> create table emails (id INT NOT NULL AUTO_INCREMENT, address VARCHAR(512), subject VARCHAR(1024), message TEXT, PRIMARY KEY ( id ));
 
+var DB *sql.DB
+
 func main() {
+	sqlConnect()
+	defer DB.Close()
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", handleRoot)
@@ -35,8 +39,7 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
-func handleRoot(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("forms.html"))
+func sqlConnect() {
 	db, err := sql.Open("mysql", "go-squee:my-new-password@(127.0.0.1:3306)/form_persistance?parseTime=true")
 
 	if err != nil {
@@ -45,7 +48,11 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 	if err = db.Ping(); err != nil {
 		log.Fatal(err)
 	}
+	DB = db
+}
 
+func handleRoot(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.ParseFiles("forms.html"))
 	if r.Method == http.MethodGet {
 		tmpl.Execute(w, nil)
 		return
@@ -58,8 +65,7 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 			Subject: r.FormValue("subject"),
 			Message: r.FormValue("message"),
 		}
-
-		_, err := db.Exec("INSERT INTO emails (address, subject, message) VALUES (?, ?, ?)", details.Address, details.Subject, details.Message)
+		_, err := DB.Exec("INSERT INTO emails (address, subject, message) VALUES (?, ?, ?)", details.Address, details.Subject, details.Message)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -90,13 +96,12 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 
 func handleEmails(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.Must(template.ParseFiles("emails.html"))
-	db, err := sql.Open("mysql", "go-squee:my-new-password@(127.0.0.1:3306)/form_persistance?parseTime=true")
+
+	query := "SELECT * FROM emails;"
+	rows, err := DB.Query(query)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
-	query := "SELECT * FROM emails;"
-	rows, err := db.Query(query)
 
 	details := []EmailDetails{}
 
@@ -116,17 +121,11 @@ func handleEmail(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	emailId := vars["emailId"]
 
-	db, err := sql.Open("mysql", "go-squee:my-new-password@(127.0.0.1:3306)/form_persistance?parseTime=true")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
 	// query := "SELECT id, username, password, created_at FROM users WHERE id = ?"
 	// if err := db.QueryRow(query, 2).Scan(&id, &username, &password, &createdAt); err != nil {
 	email := EmailDetails{}
 	query := "SELECT id, address, subject, message FROM emails WHERE id = ?"
-	if err := db.QueryRow(query, emailId).Scan(&email.Id, &email.Address, &email.Subject, &email.Message); err != nil {
+	if err := DB.QueryRow(query, emailId).Scan(&email.Id, &email.Address, &email.Subject, &email.Message); err != nil {
 		tmpl := template.Must(template.ParseFiles("404.html"))
 		tmpl.Execute(w, nil)
 	} else {
