@@ -1,0 +1,18 @@
+<h1>Emails!</h1>
+<table>
+  <thead>
+    <tr>
+      <td>Address</td>
+      <td>Subject</td>
+    </tr>
+  </thead>
+  <tbody>
+    {{range .}}
+    <tr>
+      <td>{{.Address}}</td>
+      <td><a href="/emails/{{.Id}}">{{.Subject}}</a></td>
+    </tr>
+    {{end}}
+  </tbody>
+    
+</table>

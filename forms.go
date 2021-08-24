@@ -51,15 +51,55 @@ func sqlConnect() {
 	DB = db
 }
 
+type orderData struct {
+	Name        string
+	OrderNumber int
+	ShipDate    string
+}
+
+func newCrap(w http.ResponseWriter, r *http.Request) {
+	var header = `
+		WidgetCo, Ltd.
+		463 Shoe Factory Rd.
+		Hamford, VT 20202
+	`
+	var footer = `
+		Thank you for your business,
+		WidgetCo Order Fulfillment Department
+		Ph: 818-555-0123 Email: orders@widgetco.com
+	`
+	var thanks = `
+	{{ template "header" }}
+	<h1>Contact</h1>
+	<form method="POST">
+		<label>Address:</label><br />
+		<input type="text" name="address" /><br />
+		<label>Subject:</label><br />
+		<input type="text" name="subject" /><br />
+		<label>Message:</label><br />
+		<textarea name="message"></textarea><br />
+		<input type="submit" />
+	</form>
+	{{ template "footer"  }}
+	`
+
+	t, _ := template.New("header").Parse(header)
+	t.New("footer").Parse(footer)
+	t.New("thanks").Parse(thanks)
+	t.ExecuteTemplate(w, "thanks", orderData{"Sleve McDichael", 17104, "2018-10-10"})
+}
+
 func handleRoot(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("forms.html"))
+	t, _ := template.New("form").ParseFiles("templates/forms.html", "templates/footer.html")
+	// t.New("footer").ParseFiles("templates/footer.html")
+	// tmpl := template.Must(template.ParseFiles("templates/forms.html"))
 	if r.Method == http.MethodGet {
-		tmpl.Execute(w, nil)
+		t.ExecuteTemplate(w, "form", nil)
 		return
 	}
+	// tmpl.New("footer").ParseFiles("templates/footer.html")
 
 	if r.Method == http.MethodPost {
-
 		details := EmailDetails{
 			Address: r.FormValue("address"),
 			Subject: r.FormValue("subject"),
@@ -69,20 +109,7 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		// Things to do to actually persist this to DB
-		// 1. Create the database on the local machine - DONE
-		// 2. Create a user for the database - DONE
-		// 3. Setup appropriate tables (in our case, just one for now) - DONE
-		// 4. Connect to the database in this method - DONE
-		// 5. Actually persist data - DONE
-		// 5b. read all emails?
-		// 5c. read an email?
-		// 6. [OPTIONAL] Add a new route with HTTP BASIC AUTH
-		// 7. ...
-		// 8. Profit!
-
-		tmpl.Execute(w, struct{ Success bool }{true})
+		t.ExecuteTemplate(w, "form", struct{ Success bool }{true})
 		return
 	}
 
@@ -95,7 +122,7 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleEmails(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("emails.html"))
+	tmpl := template.Must(template.ParseFiles("templates/emails.html"))
 
 	query := "SELECT * FROM emails;"
 	rows, err := DB.Query(query)
@@ -126,10 +153,10 @@ func handleEmail(w http.ResponseWriter, r *http.Request) {
 	email := EmailDetails{}
 	query := "SELECT id, address, subject, message FROM emails WHERE id = ?"
 	if err := DB.QueryRow(query, emailId).Scan(&email.Id, &email.Address, &email.Subject, &email.Message); err != nil {
-		tmpl := template.Must(template.ParseFiles("404.html"))
+		tmpl := template.Must(template.ParseFiles("templates/404.html"))
 		tmpl.Execute(w, nil)
 	} else {
-		tmpl := template.Must(template.ParseFiles("email.html"))
+		tmpl := template.Must(template.ParseFiles("templates/email.html"))
 		tmpl.Execute(w, email)
 	}
 }
