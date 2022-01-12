@@ -9,15 +9,19 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// How does this get run? do we specify this on the command-line?
 func sqlshit() {
+	// is this lazy? if so, what on earth is the error if it fails?
 	db, err := sql.Open("mysql", "root:my-new-password@(127.0.0.1:3306)/kitties?parseTime=true")
 	if err != nil {
 		log.Fatal(err)
 	}
+	// why is this necessary?
 	if err := db.Ping(); err != nil {
 		log.Fatal(err)
 	}
 
+	// WHat's with this brace? this feels pretty random.
 	{ // Insert a new user
 		username := "johndoe"
 		password := "secret"
@@ -32,7 +36,10 @@ func sqlshit() {
 		fmt.Println(id)
 	}
 
+	// WHat's with this brace? this feels pretty random.
 	{ // Query a single user
+
+		// what is this? like an un-named struct?
 		var (
 			id        int
 			username  string

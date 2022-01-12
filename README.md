@@ -1,3 +1,9 @@
+# State of our code:
+
+- We have 4 branches. What do they do?
+- main, gia-main, wild-west, 21Jul20-implement-basic-db-save
+
+
 # Useful commands:
 
 # Packages!
@@ -35,3 +41,7 @@ TODOs:
 	err = rows.Err()
 
   - Type definitions: can types be declared outside the file they're used?
+
+- how do we run stuff/ compile, etc?
+
+- How do we lint stuff?
