@@ -16,7 +16,7 @@ type TodoPageData struct {
 	Todos     []Todo
 }
 
-func main() {
+func foo() {
 	fs := http.FileServer(http.Dir("assets/"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 

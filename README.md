@@ -6,11 +6,31 @@
 
 # Useful commands:
 
+- `go fmt` does formatting stuffs
+- `go build` builds `main.go` but you can also say `go build forms.go` and that will just build that thing.
+  - also result in the creation of a binary executable by the same name
+
+  - then `go build` will look seek out and find `func main()` in your current
+  directory and it will also consult your `go.mod` file to figure out the name
+  of the executable to create. If you have more than one `func main()` then `go
+  build` will refuse to build.
+  
+  - `go run` builds without creating an executable file and just runs it (without creating the executable file)
+  - `go help ___` will give you (possibly more than you want) help about a given command.
+
+
 # Packages!
 
 - We see that we have a `package main` at the top of some files. What is that about?
+
+  A: if a go module is to be executable on its own, it needs to be in `package main`. if it's a library, it could be a different package.
+
+- How do you import packages within the same repository?
+
 - How would you make another module and import it? would it also have `package main`? at what point would it become `package kitties` does `package main` also need `func main()`?
+
 - what is the work of `package` what is the work of `main`
+
 - Does every project have to have one and only one `func main()` ?
 
 

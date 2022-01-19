@@ -1,5 +1,7 @@
 package main
 
+import s "sql-utils/connector"
+
 import (
 	"database/sql"
 	"fmt"
@@ -28,7 +30,7 @@ type EmailDetails struct {
 var DB *sql.DB
 
 func main() {
-	sqlConnect()
+	DB = s.sqlConnect()
 	defer DB.Close()
 	r := mux.NewRouter()
 
@@ -37,18 +39,6 @@ func main() {
 	r.HandleFunc("/emails/{emailId}", handleEmail)
 
 	log.Fatal(http.ListenAndServe(":8080", r))
-}
-
-func sqlConnect() {
-	db, err := sql.Open("mysql", "go-squee:my-new-password@(127.0.0.1:3306)/form_persistance?parseTime=true")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err = db.Ping(); err != nil {
-		log.Fatal(err)
-	}
-	DB = db
 }
 
 func handleRoot(w http.ResponseWriter, r *http.Request) {
