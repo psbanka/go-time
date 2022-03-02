@@ -1,4 +1,4 @@
-module go-time/sql-utils/connector
+module example.com/sql-utils
 
 go 1.17
 

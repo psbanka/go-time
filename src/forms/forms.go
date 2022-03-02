@@ -1,7 +1,5 @@
 package main
 
-import s "sql-utils/connector"
-
 import (
 	"database/sql"
 	"fmt"
@@ -9,6 +7,7 @@ import (
 	"log"
 	"net/http"
 
+	connector "example.com/sql-utils"
 	"github.com/gorilla/mux"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -30,7 +29,7 @@ type EmailDetails struct {
 var DB *sql.DB
 
 func main() {
-	DB = s.sqlConnect()
+	DB = connector.Connect()
 	defer DB.Close()
 	r := mux.NewRouter()
 
