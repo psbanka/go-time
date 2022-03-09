@@ -1,4 +1,4 @@
-module go-time/kitties
+module go-time/forms
 
 go 1.16
 
@@ -8,6 +8,6 @@ require (
 	github.com/gorilla/mux v1.8.0 // indirect
 )
 
-replace example.com/sql-utils/connector => ./sql-utils/connector
+replace example.com/sql-utils/connector => ../../internal/sql-utils/connector
 
-replace example.com/sql-utils => ../sql-utils
+replace example.com/sql-utils => ../../internal/sql-utils
