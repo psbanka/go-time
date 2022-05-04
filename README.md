@@ -2,6 +2,7 @@
 
 - We have 4 branches. What do they do?
 - main, gia-main, wild-west, 21Jul20-implement-basic-db-save
+- We decided to structure the code based off of what we saw in [proteusdns app](https://github.com/fastly/proteusdns)
 
 
 # Useful commands:
@@ -38,6 +39,7 @@ TODOs:
 - Look at some kind of "real" projects:
   - look at IAM's thing as an API!
   - Go look at snit code!
+  - We looked at proteusdns and immediately started fan-personing
 - How does configuration within a library work? How do we do config/secrets management (e.g. root database passwords)
 
 - How do we install dependencies?
@@ -47,15 +49,19 @@ TODOs:
 - what's the difference between
   - import "database/sql"
   - import "github.com/go-sql-driver/mysql"
+  - The difference is that the first one is a standard library whereas the mysql driver is an external library.
 
 # Uncategorized musings:
 
 	- // Question: how do you define constants? can you have immutable constants?
 
-	- // TODO: Weird smell: Could this exist outside the main function?
-	- // Could this be declared in another module and imported?
+  It's as simple as using `const`.
 
 	- defer rows.Close() // how does defer generally work?
+
+  When you defer inside a function, you are telling the program to close whatever you had open (file, connection, etc.) after you have returned from the scope of the function.
+
+  Does go have concept of exceptions? It must have runtime exceptions right? For example, what happens if you divide by zero?
 
 	// WHat is this? How does it get set? Why do we care?
 	err = rows.Err()
