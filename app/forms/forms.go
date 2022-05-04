@@ -7,12 +7,13 @@ import (
 	"log"
 	"net/http"
 
-	connector "example.com/sql-utils"
+	sqlutils "example.com/sql-utils"
 	"github.com/gorilla/mux"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// TODO: pull this out or just have it in one place
 type EmailDetails struct {
 	Id      int
 	Address string
@@ -23,7 +24,7 @@ type EmailDetails struct {
 var DB *sql.DB
 
 func main() {
-	DB = connector.Connect()
+	DB = sqlutils.Connect()
 	defer DB.Close()
 	r := mux.NewRouter()
 
@@ -42,12 +43,7 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		details := EmailDetails{
-			Address: r.FormValue("address"),
-			Subject: r.FormValue("subject"),
-			Message: r.FormValue("message"),
-		}
-		_, err := DB.Exec("INSERT INTO emails (address, subject, message) VALUES (?, ?, ?)", details.Address, details.Subject, details.Message)
+		_, err := sqlutils.CreateEmail(r, DB)
 		if err != nil {
 			log.Fatal(err)
 		}

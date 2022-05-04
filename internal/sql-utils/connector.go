@@ -1,4 +1,4 @@
-package connector
+package sqlutils
 
 import (
 	"database/sql"
