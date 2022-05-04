@@ -20,12 +20,6 @@ type EmailDetails struct {
 	Message string
 }
 
-// Oh, would you like a database? Here's how you can fire it up!
-// create database form_persistance;
-// create user 'go-squee' identified by 'my-new-password';
-// GRANT ALL PRIVILEGES on *.* to 'go-squee';
-// mysql> create table emails (id INT NOT NULL AUTO_INCREMENT, address VARCHAR(512), subject VARCHAR(1024), message TEXT, PRIMARY KEY ( id ));
-
 var DB *sql.DB
 
 func main() {
@@ -48,7 +42,6 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-
 		details := EmailDetails{
 			Address: r.FormValue("address"),
 			Subject: r.FormValue("subject"),
@@ -59,18 +52,6 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 		}
 
-		// Things to do to actually persist this to DB
-		// 1. Create the database on the local machine - DONE
-		// 2. Create a user for the database - DONE
-		// 3. Setup appropriate tables (in our case, just one for now) - DONE
-		// 4. Connect to the database in this method - DONE
-		// 5. Actually persist data - DONE
-		// 5b. read all emails?
-		// 5c. read an email?
-		// 6. [OPTIONAL] Add a new route with HTTP BASIC AUTH
-		// 7. ...
-		// 8. Profit!
-
 		tmpl.Execute(w, struct{ Success bool }{true})
 		return
 	}
@@ -80,7 +61,6 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(response))
 	fmt.Fprintf(w, response)
 	log.Println(response)
-
 }
 
 func handleEmails(w http.ResponseWriter, r *http.Request) {
@@ -110,8 +90,6 @@ func handleEmail(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	emailId := vars["emailId"]
 
-	// query := "SELECT id, username, password, created_at FROM users WHERE id = ?"
-	// if err := db.QueryRow(query, 2).Scan(&id, &username, &password, &createdAt); err != nil {
 	email := EmailDetails{}
 	query := "SELECT id, address, subject, message FROM emails WHERE id = ?"
 	if err := DB.QueryRow(query, emailId).Scan(&email.Id, &email.Address, &email.Subject, &email.Message); err != nil {

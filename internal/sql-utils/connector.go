@@ -2,6 +2,7 @@ package connector
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -16,5 +17,6 @@ func Connect() *sql.DB {
 	if err = db.Ping(); err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println("Connected to database")
 	return db
 }

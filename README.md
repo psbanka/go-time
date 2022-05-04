@@ -1,3 +1,25 @@
+# Development
+
+There is a http server for email that lives in `app/forms`. If you run a `go
+build` in there, you'll get an executable called `forms`. This goes off and
+compiles the `internal/sql-utils.go` as well and incorporates that code into the
+built `forms` binary.
+
+You'll need a mysql database to make this work. Here's how you can fire it up!
+
+You'll want to first start the mysql daemon with `mysqld` on some terminal.
+
+Next, get into a mysql REPL, and run these commands. Your password might be different than this.
+
+```sql
+$ mysql -u root --password=my-new-password
+create database form_persistance;
+create user 'go-squee' identified by 'my-new-password';
+GRANT ALL PRIVILEGES on *.* to 'go-squee';
+create table emails (id INT NOT NULL AUTO_INCREMENT, address VARCHAR(512), subject VARCHAR(1024), message TEXT, PRIMARY KEY ( id ));
+```
+
+
 # State of our code:
 
 - We have 4 branches. What do they do?
